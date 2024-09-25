@@ -18,13 +18,12 @@ void ABuildingActor::OnDamageServerHook(ABuildingActor* BuildingActor, float Dam
 	FVector Momentum, /* FHitResult */ __int64 HitInfo, APlayerController* InstigatedBy, AActor* DamageCauser,
 	/* FGameplayEffectContextHandle */ __int64 EffectContext)
 {
-	//LOG_INFO(LogDev, "OnDamageServerHook1");
 
 	auto BuildingSMActor = Cast<ABuildingSMActor>(BuildingActor);
 	auto PlayerController = Cast<AFortPlayerControllerAthena>(InstigatedBy);
 
 	if (!BuildingSMActor) {
-		//LOG_ERROR(LogDev, "BuildingSMActor is null");
+
 	}
 
 	if (auto Container = Cast<ABuildingContainer>(BuildingActor))
@@ -33,44 +32,26 @@ void ABuildingActor::OnDamageServerHook(ABuildingActor* BuildingActor, float Dam
 		{
 			LOG_INFO(LogDev, "It's a me, a buildingcontainer!");
 			PlayerController->GiveAccolade(PlayerController, GetDefFromEvent(EAccoladeEvent::Search, Damage, BuildingActor));
-			if (!Globals::bProperBelowChest)
-			{
-				Container->SpawnLoot();
-			}
+			Container->SpawnLoot();
 		}
 	}
 	AFortPlayerStateAthena* PS = PlayerController->GetPlayerStateAthena();
 	auto AttachedBuildingActors = BuildingSMActor->GetAttachedBuildingActors();
-	/*if (AttachedBuildingActors.Num() <= 0) {
-		//LOG_ERROR(LogDev, "AttachedBuildingActors array is empty or invalid");
-	}*/
-	if (AttachedBuildingActors.Num() > 0)
+	for (int i = 0; i < AttachedBuildingActors.Num(); ++i)
 	{
-		for (int i = 0; i < AttachedBuildingActors.Num(); ++i)
+
+		auto CurrentBuildingActor = AttachedBuildingActors.at(i);
+		auto CurrentActor = Cast<ABuildingActor>(CurrentBuildingActor);
+		if (BuildingSMActor->GetHealth() <= 0 || BuildingActor->GetHealth() <= 0)
 		{
-
-			auto CurrentBuildingActor = AttachedBuildingActors.at(i);
-			if (CurrentBuildingActor)
+			if (auto Container = Cast<ABuildingContainer>(CurrentActor))
 			{
-				auto CurrentActor = Cast<ABuildingActor>(CurrentBuildingActor);
-				if (BuildingSMActor->GetHealth() <= 0 || BuildingActor->GetHealth() <= 0) {
-					if (CurrentActor) {
-						if (auto Container = Cast<ABuildingContainer>(CurrentActor)) {
-							if (!Container->IsAlreadySearched()) {
-								PlayerController->GiveAccolade(PlayerController, GetDefFromEvent(EAccoladeEvent::Search, Damage, CurrentActor));
-								if (!Globals::bProperBelowChest)
-								{
-									Container->SpawnLoot();
-									LOG_INFO(LogDev, "spawnloott");
-								}
-							}
-
-						}
-					}
+				if (!Container->IsAlreadySearched())
+				{
+					PlayerController->GiveAccolade(PlayerController, GetDefFromEvent(EAccoladeEvent::Search, Damage, CurrentActor));
+					Container->SpawnLoot();
+					LOG_INFO(LogDev, "spawnloott");
 				}
-			}
-			else {
-				LOG_WARN(LogDev, "CurrentBuildingActor at index %d is null", i);
 			}
 		}
 	}
@@ -84,25 +65,8 @@ void ABuildingActor::OnDamageServerHook(ABuildingActor* BuildingActor, float Dam
 	if (BuildingSMActor->IsDestroyed())
 		return OnDamageServerOriginal(BuildingActor, Damage, DamageTags, Momentum, HitInfo, InstigatedBy, DamageCauser, EffectContext);
 
-	/*
-
-	static auto LastDamageAmountOffset = BuildingSMActor->GetOffset("LastDamageAmount");
-	static auto LastDamageHitOffset = BuildingSMActor->GetOffset("LastDamageHit", false) != -1 ? BuildingSMActor->GetOffset("LastDamageHit") : BuildingSMActor->GetOffset("LastDamageHitImpulseDir"); // idc
-
-	const float PreviousLastDamageAmount = BuildingSMActor->Get<float>(LastDamageAmountOffset);
-	const float PreviousLastDamageHit = BuildingSMActor->Get<float>(LastDamageHitOffset);
-	const float CurrentBuildingHealth = BuildingActor->GetHealth();
-
-	BuildingSMActor->Get<float>(LastDamageAmountOffset) = Damage;
-	BuildingSMActor->Get<float>(LastDamageHitOffset) = CurrentBuildingHealth;
-
-	*/
-
 	if (!PlayerController || !Weapon)
 		return OnDamageServerOriginal(BuildingActor, Damage, DamageTags, Momentum, HitInfo, InstigatedBy, DamageCauser, EffectContext);
-
-	// if (!Pawn)
-		// return OnDamageServerOriginal(BuildingActor, Damage, DamageTags, Momentum, HitInfo, InstigatedBy, DamageCauser, EffectContext);
 
 	auto WorldInventory = PlayerController->GetWorldInventory();
 
@@ -127,33 +91,16 @@ void ABuildingActor::OnDamageServerHook(ABuildingActor* BuildingActor, float Dam
 
 	if (BuildingResourceAmountOverride.RowName.IsValid())
 	{
-		// auto AssetManager = Cast<UFortAssetManager>(GEngine->AssetManager);
-		//auto GameState = Cast<AFortGameStateAthena>(GetWorld()->GetGameState());
-		UCurveTable* CurveTable = nullptr; //GameState->GetCurrentPlaylist().BasePlaylist ? GameState->GetCurrentPlaylist().BasePlaylist->ResourceRates.Get() : nullptr;
-
-		// LOG_INFO(LogDev, "Before1");
+		UCurveTable* CurveTable = nullptr;
 
 		if (!CurveTable)
 			CurveTable = FindObject<UCurveTable>(L"/Game/Athena/Balance/DataTables/AthenaResourceRates.AthenaResourceRates");
 
 		{
-			// auto curveMap = ((UDataTable*)CurveTable)->GetRowMap();
-
-			// LOG_INFO(LogDev, "Before {}", __int64(CurveTable));
 
 			float Out = UDataTableFunctionLibrary::EvaluateCurveTableRow(CurveTable, BuildingResourceAmountOverride.RowName, 0.f);
 
-			// LOG_INFO(LogDev, "Out: {}", Out);
-
-			const float DamageThatWillAffect = /* PreviousLastDamageHit > 0 && Damage > PreviousLastDamageHit ? PreviousLastDamageHit : */ Damage;
-
-			//LOG_INFO(LogDev, "Out {}", Out);
-
-			//LOG_INFO(LogDev, "maxHealth {}", BuildingActor->GetMaxHealth());
-
-			//LOG_INFO(LogDev, "damageThatWill {}", DamageThatWillAffect);
-
-			//LOG_INFO(LogDev, "currentHealth {}", BuildingActor->GetHealth());
+			const float DamageThatWillAffect = Damage;
 
 			float skid = Out / (BuildingActor->GetMaxHealth() / DamageThatWillAffect);
 

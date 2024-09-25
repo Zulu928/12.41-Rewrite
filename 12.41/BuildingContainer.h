@@ -63,13 +63,6 @@ public:
 		this->ProcessEvent(BounceContainerFn);
 	}
 
-	static char __fastcall BP_SpawnLoot(ABuildingContainer* Object)
-	{
-		LOG_INFO(LogDev, "BP_SpawnLootHook!");
-		Object->SpawnLoot();
-		return 1;
-	}
-
 	bool SpawnLoot(AFortPawn* Pawn = nullptr);
 
 	static UClass* StaticClass()

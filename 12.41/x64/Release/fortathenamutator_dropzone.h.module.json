@@ -5,14 +5,14 @@
         {
             "primary-output": "x64\\Release\\FortAthenaMutator_DropZone.h.obj",
             "outputs": [
-                "C:\\Users\\joshu\\Downloads\\Compressed\\12.41 GS\\12.41 GS\\12.41\\x64\\Release\\vc143.pdb",
+                "C:\\Users\\joshu\\Downloads\\Compressed\\12.41 GS\\12.41-Rewrite\\12.41-Rewrite\\12.41\\x64\\Release\\vc143.pdb",
                 "x64\\Release\\",
-                "C:\\Users\\joshu\\Downloads\\Compressed\\12.41 GS\\12.41 GS\\12.41\\x64\\Release\\FortAthenaMutator_DropZone.h.ifc"
+                "C:\\Users\\joshu\\Downloads\\Compressed\\12.41 GS\\12.41-Rewrite\\12.41-Rewrite\\12.41\\x64\\Release\\FortAthenaMutator_DropZone.h.ifc"
             ],
             "provides": [
                 {
                     "logical-name": "FortAthenaMutator_DropZone.h",
-                    "source-path": "c:\\users\\joshu\\downloads\\compressed\\12.41 gs\\12.41 gs\\12.41\\fortathenamutator_dropzone.h",
+                    "source-path": "c:\\users\\joshu\\downloads\\compressed\\12.41 gs\\12.41-rewrite\\12.41-rewrite\\12.41\\fortathenamutator_dropzone.h",
                     "lookup-method": "absolute"
                 }
             ],

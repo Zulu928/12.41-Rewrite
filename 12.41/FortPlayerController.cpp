@@ -549,7 +549,7 @@ void AFortPlayerController::ServerAttemptInteractHook(UObject* Context, FFrame* 
 
 		// LOG_INFO(LogInteraction, "bAlreadySearchedFieldMask: {}", bAlreadySearchedFieldMask);
 
-		//BuildingContainer->SpawnLoot(PlayerController->GetMyFortPawn());
+		BuildingContainer->SpawnLoot(PlayerController->GetMyFortPawn());
 
 		AFortPlayerStateAthena* PS = PlayerController->GetPlayerStateAthena();
 		if (!ReceivingActor || !ReceivingActor->ClassPrivate->GetName().contains("Ammo"))

@@ -763,11 +763,6 @@ DWORD WINAPI Main(LPVOID)
     Hooking::MinHook::Hook((PVOID)Addresses::NoMCP, (PVOID)NoMCPHook, nullptr);
     Hooking::MinHook::Hook((PVOID)Addresses::GetNetMode, (PVOID)GetNetModeHook, nullptr);
     Hooking::MinHook::Hook((PVOID)Addresses::DispatchRequest, (PVOID)DispatchRequestHook, (PVOID*)&DispatchRequestOriginal);
-    
-    auto BP_SpawnLootOffSet = 0x1B46D00;
-    __int64 BaseAddr = __int64(GetModuleHandleA(0));
-    uint64 SpawnLootAddr = (BaseAddr + BP_SpawnLootOffSet);
-    Hooking::MinHook::Hook((LPVOID)SpawnLootAddr, ABuildingContainer::BP_SpawnLoot);
 
     GSRandSeed = FGenericPlatformTime::Cycles();
     ReplicationRandStream = FRandomStream(FGenericPlatformTime::Cycles());

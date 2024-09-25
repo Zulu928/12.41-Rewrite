@@ -338,7 +338,7 @@ void AActor::ReceiveDestroyedHook(AActor* DestroyedActor)
 	{
 		LOG_INFO(LogDev, "It's a me, a buildingcontainer!");
 
-		//Container->SpawnLoot();
+		Container->SpawnLoot();
 	}
 
 	return ReceiveDestroyedOriginal(DestroyedActor);
