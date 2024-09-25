@@ -1,0 +1,170 @@
+﻿  Scanning sources for module dependencies...
+  FortGameModeAthena.cpp
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\vendor\memcury.h(1076,34): warning C4244: 'initializing': conversion from 'double' to 'uint64_t', possible loss of data
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\vendor\memcury.h(1077,34): warning C4244: 'initializing': conversion from 'double' to 'uint64_t', possible loss of data
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\vendor\memcury.h(1348,17): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\globals.h(27,40): warning C4305: 'initializing': truncation from 'int' to 'bool'
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\reboot.h(151,16): warning C4267: '=': conversion from 'size_t' to 'unsigned int', possible loss of data
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\FortPlayerController.h(74,8): warning C4099: 'FName': type name first seen using 'struct' now seen using 'class'
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\NameTypes.h(22,8): message : see declaration of 'FName'
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\FortAthenaMapInfo.h(18,103): warning C4244: 'argument': conversion from 'float' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=int
+          ]
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\FortAthenaMapInfo.h(18,60): warning C4244: 'argument': conversion from 'float' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=int
+          ]
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\FortAthenaMapInfo.h(20,21): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\FortPlayerControllerAthena.h(228,43): warning C4099: 'FName': type name first seen using 'struct' now seen using 'class'
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\NameTypes.h(22,8): message : see declaration of 'FName'
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\FortPlayerControllerAthena.h(355,122): warning C4099: 'FName': type name first seen using 'struct' now seen using 'class'
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\NameTypes.h(22,8): message : see declaration of 'FName'
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\FortAthenaAIBotSkillSet.h(33,24): warning C4244: 'return': conversion from 'float' to 'int', possible loss of data
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\FortAthenaAIBotSkillSet.h(49,32): warning C4244: 'return': conversion from 'float' to 'int', possible loss of data
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\FortAthenaAIBotSkillSet.h(70,24): warning C4244: 'return': conversion from 'float' to 'int', possible loss of data
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\FortAthenaAIBotSkillSet.h(86,32): warning C4244: 'return': conversion from 'float' to 'int', possible loss of data
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\FortAthenaAIBotSkillSet.h(107,24): warning C4244: 'return': conversion from 'float' to 'int', possible loss of data
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\FortAthenaAIBotSkillSet.h(123,32): warning C4244: 'return': conversion from 'float' to 'int', possible loss of data
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\FortAthenaCreativePortal.h(10,9): warning C4099: 'FString': type name first seen using 'class' now seen using 'struct'
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\UnrealString.h(10,7): message : see declaration of 'FString'
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\FortAthenaCreativePortal.h(11,9): warning C4099: 'FString': type name first seen using 'class' now seen using 'struct'
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\UnrealString.h(10,7): message : see declaration of 'FString'
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\FortAthenaCreativePortal.h(12,9): warning C4099: 'FString': type name first seen using 'class' now seen using 'struct'
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\UnrealString.h(10,7): message : see declaration of 'FString'
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\FortAthenaCreativePortal.h(16,9): warning C4099: 'FText': type name first seen using 'class' now seen using 'struct'
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\Text.h(11,7): message : see declaration of 'FText'
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\FortAthenaCreativePortal.h(19,9): warning C4099: 'FString': type name first seen using 'class' now seen using 'struct'
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\UnrealString.h(10,7): message : see declaration of 'FString'
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\FortAthenaCreativePortal.h(20,9): warning C4099: 'FString': type name first seen using 'class' now seen using 'struct'
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\UnrealString.h(10,7): message : see declaration of 'FString'
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\FortAthenaCreativePortal.h(21,9): warning C4099: 'FString': type name first seen using 'class' now seen using 'struct'
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\UnrealString.h(10,7): message : see declaration of 'FString'
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\FortAthenaCreativePortal.h(22,9): warning C4099: 'FString': type name first seen using 'class' now seen using 'struct'
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\UnrealString.h(10,7): message : see declaration of 'FString'
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\FortAthenaCreativePortal.h(23,9): warning C4099: 'FString': type name first seen using 'class' now seen using 'struct'
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\UnrealString.h(10,7): message : see declaration of 'FString'
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\hooking.h(339,114): warning C4244: 'initializing': conversion from '__int64' to 'int', possible loss of data
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\hooking.h(346,52): warning C4244: 'argument': conversion from '__int64' to 'int', possible loss of data
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\vehicles.h(48,21): warning C4305: '/=': truncation from 'double' to 'float'
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\vehicles.h(50,22): warning C4305: '/=': truncation from 'double' to 'float'
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\vendingmachine.h(199,58): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\vendingmachine.h(259,99): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\calendar.h(50,19): warning C4244: 'return': conversion from '_Ty' to 'float', possible loss of data
+          with
+          [
+              _Ty=int
+          ]
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\calendar.h(103,33): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\moderation.h(85,27): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\moderation.h(146,27): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\gui.h(148,19): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\gui.h(693,69): warning C4267: 'argument': conversion from 'size_t' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=int
+          ]
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\gui.h(694,73): warning C4267: 'argument': conversion from 'size_t' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=int
+          ]
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\gui.h(695,65): warning C4267: 'argument': conversion from 'size_t' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=int
+          ]
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\gui.h(696,70): warning C4267: 'argument': conversion from 'size_t' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=int
+          ]
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\gui.h(697,71): warning C4267: 'argument': conversion from 'size_t' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=int
+          ]
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\gui.h(698,67): warning C4267: 'argument': conversion from 'size_t' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=int
+          ]
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\gui.h(746,17): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\gui.h(764,24): warning C4244: 'argument': conversion from 'float' to 'DWORD', possible loss of data
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\gui.h(796,63): warning C4834: discarding return value of function with [[nodiscard]] attribute
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\gui.h(824,24): warning C4244: 'argument': conversion from 'float' to 'DWORD', possible loss of data
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\gui.h(1733,72): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\gui.h(1811,43): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\gui.h(1811,36): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\FortAthenaMutator_DadBro.h(77,96): warning C4267: 'argument': conversion from 'size_t' to 'uint32', possible loss of data
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\FortGameModeAthena.cpp(171,24): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\FortGameModeAthena.cpp(1264,18): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\FortGameModeAthena.cpp(1851,108): warning C4244: 'argument': conversion from 'float' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=int
+          ]
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\FortGameModeAthena.cpp(1851,72): warning C4244: 'argument': conversion from 'float' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=int
+          ]
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\FortGameModeAthena.cpp(1853,32): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\FortGameModeAthena.cpp(1870,20): warning C4244: 'initializing': conversion from 'int64' to 'uint8', possible loss of data
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\FortGameModeAthena.cpp(2118,26): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.39.33519\include\utility(250,16): warning C4244: 'initializing': conversion from '_Ty' to '_Ty1', possible loss of data
+          with
+          [
+              _Ty=int
+          ]
+          and
+          [
+              _Ty1=float
+          ]
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.39.33519\include\utility(250,16): message : the template instantiation context (the oldest one first) is
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\calendar.h(30,59): message : see reference to function template instantiation 'std::pair<float,float>::pair<int,float,0>(_Other1 &&,_Other2 &&) noexcept' being compiled
+          with
+          [
+              _Other1=int,
+              _Other2=float
+          ]
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\12.41\calendar.h(30,57): message : see the first reference to 'std::pair<float,float>::pair' in 'Calendar::GetFullSnowMapValue'
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.39.33519\include\xutility(4537,18): warning C4244: '=': conversion from 'wchar_t' to 'char', possible loss of data
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.39.33519\include\xutility(4537,18): message : the template instantiation context (the oldest one first) is
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\vendor\memcury.h(1422,44): message : see reference to function template instantiation 'Memcury::Scanner Memcury::Scanner::FindStringRef<const wchar_t*>(T,bool,int,bool,bool)' being compiled
+          with
+          [
+              T=const wchar_t *
+          ]
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\vendor\memcury.h(916,29): message : see reference to function template instantiation 'std::basic_string<char,std::char_traits<char>,std::allocator<char>>::basic_string<std::_String_iterator<std::_String_val<std::_Simple_types<_Elem>>>,0>(_Iter,_Iter,const _Alloc &)' being compiled
+          with
+          [
+              _Elem=wchar_t,
+              _Iter=std::_String_iterator<std::_String_val<std::_Simple_types<wchar_t>>>,
+              _Alloc=std::allocator<char>
+          ]
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.39.33519\include\xstring(2600,17): message : see reference to function template instantiation 'void std::basic_string<char,std::char_traits<char>,std::allocator<char>>::_Construct_from_iter<wchar_t*,wchar_t*,_Size_type>(_Iter,const _Sent,_Size)' being compiled
+          with
+          [
+              _Size_type=unsigned __int64,
+              _Iter=wchar_t *,
+              _Sent=wchar_t *,
+              _Size=unsigned __int64
+          ]
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.39.33519\include\xstring(2756,18): message : see reference to function template instantiation '_OutIt *std::_Copy_n_unchecked4<wchar_t*,_Size,char*>(_InIt,_SizeTy,_OutIt)' being compiled
+          with
+          [
+              _OutIt=char *,
+              _Size=unsigned __int64,
+              _InIt=wchar_t *,
+              _SizeTy=unsigned __int64
+          ]
+LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library
+  Generating code
+  8 of 14018 functions (<0.1%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    68 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+  12.41.vcxproj -> C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41 GS\x64\Release\12.41 GS.dll
