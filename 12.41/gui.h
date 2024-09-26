@@ -418,6 +418,14 @@ static inline void MainTabs()
 			ImGui::EndTabItem();
 		}
 
+		if (ImGui::BeginTabItem(("Zone")))
+		{
+			Tab = ZONE_TAB;
+			PlayerTab = -1;
+			bInformationTab = false;
+			ImGui::EndTabItem();
+		}
+
 		if (Globals::bStartedListening)
 		{
 			if (ImGui::BeginTabItem("Players"))
@@ -425,6 +433,14 @@ static inline void MainTabs()
 				Tab = PLAYERS_TAB;
 				ImGui::EndTabItem();
 			}
+		}
+
+		if (Globals::bLateGame.load() && ImGui::BeginTabItem("Lategame"))
+		{
+			Tab = LATEGAME_TAB;
+			PlayerTab = -1;
+			bInformationTab = false;
+			ImGui::EndTabItem();
 		}
 
 		if (ImGui::BeginTabItem("Other"))
@@ -645,10 +661,11 @@ static inline DWORD WINAPI LateGameThread(LPVOID)
 					L"/Game/Athena/Items/Weapons/WID_Shotgun_Standard_Athena_VR_Ore_T03.WID_Shotgun_Standard_Athena_VR_Ore_T03",
 					L"/Game/Athena/Items/Weapons/WID_Shotgun_Standard_Athena_SR_Ore_T03.WID_Shotgun_Standard_Athena_SR_Ore_T03",
 					L"/Game/Athena/Items/Weapons/WID_Shotgun_Standard_Athena_SR_Ore_T03.WID_Shotgun_Standard_Athena_SR_Ore_T03",
+					L"/Game/Athena/Items/Weapons/WID_Shotgun_Standard_Athena_UC_Ore_T03.WID_Shotgun_Standard_Athena_UC_Ore_T03",
 					L"/Game/Athena/Items/Weapons/WID_Shotgun_HighSemiAuto_Athena_SR_Ore_T03.WID_Shotgun_HighSemiAuto_Athena_SR_Ore_T03",
 					L"/Game/Athena/Items/Weapons/WID_Shotgun_HighSemiAuto_Athena_VR_Ore_T03.WID_Shotgun_HighSemiAuto_Athena_VR_Ore_T03",
 					L"/Game/Athena/Items/Weapons/WID_Shotgun_Standard_Athena_UC_Ore_T03.WID_Shotgun_Standard_Athena_UC_Ore_T03",
-					L"/Game/Athena/Items/Weapons/WID_Shotgun_HighSemiAuto_Athena_SR_Ore_T03.WID_Shotgun_HighSemiAuto_Athena_SR_Ore_T03",
+					L"/Game/Athena/Items/Weapons/WID_Shotgun_Standard_Athena_UC_Ore_T03.WID_Shotgun_Standard_Athena_UC_Ore_T03",
 				};
 
 				std::vector<const wchar_t*> SMGOptions = {
@@ -678,6 +695,7 @@ static inline DWORD WINAPI LateGameThread(LPVOID)
 					L"/Game/Athena/Items/Consumables/Shields/Athena_Shields.Athena_Shields",
 					L"/Game/Athena/Items/Consumables/ShieldSmall/Athena_ShieldSmall.Athena_ShieldSmall",
 					L"/Game/Athena/Items/Consumables/Medkit/Athena_Medkit.Athena_Medkit",
+					L"/Game/Athena/Items/Consumables/Flopper/Effective/WID_Athena_Flopper_Effective.WID_Athena_Flopper_Effective",
 					L"/Game/Athena/Items/Consumables/Bandage/Athena_Bandage.Athena_Bandage",
 					L"/Game/Athena/Items/Consumables/Flopper/Effective/WID_Athena_Flopper_Effective.WID_Athena_Flopper_Effective",
 					L"/Game/Athena/Items/Consumables/Flopper/WID_Athena_Flopper.WID_Athena_Flopper",
@@ -1293,6 +1311,40 @@ static inline void MainUI()
 				}
 			}
 		}
+
+		else if (Tab == ZONE_TAB)
+		{
+			if (ImGui::Button("Start Safe Zone"))
+			{
+				UKismetSystemLibrary::ExecuteConsoleCommand(GetWorld(), L"startsafezone", nullptr);
+			}
+
+			if (ImGui::Button("Pause Safe Zone"))
+			{
+				UKismetSystemLibrary::ExecuteConsoleCommand(GetWorld(), L"pausesafezone", nullptr);
+			}
+
+			if (ImGui::Button("Skip Zone"))
+			{
+				UKismetSystemLibrary::ExecuteConsoleCommand(GetWorld(), L"skipsafezone", nullptr);
+			}
+
+			if (ImGui::Button("Start Shrink Safe Zone"))
+			{
+				UKismetSystemLibrary::ExecuteConsoleCommand(GetWorld(), L"startshrinksafezone", nullptr);
+			}
+
+			if (ImGui::Button("Skip Shrink Safe Zone"))
+			{
+				auto GameMode = Cast<AFortGameModeAthena>(GetWorld()->GetGameMode());
+				auto SafeZoneIndicator = GameMode->GetSafeZoneIndicator();
+
+				if (SafeZoneIndicator)
+				{
+					SafeZoneIndicator->SkipShrinkSafeZone();
+				}
+			}
+			}
 
 		else if (Tab == UNBAN_TAB)
 		{

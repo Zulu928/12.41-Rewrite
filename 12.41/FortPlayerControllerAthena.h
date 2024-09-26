@@ -651,6 +651,12 @@ public:
 		return ReturnValue;
 	}
 
+	struct FScalableFloat GetXpRewardAmount()
+	{
+		static auto XpRewardAmountOffset = GetOffset("XpRewardAmount");
+		return Get<FScalableFloat>(XpRewardAmountOffset);
+	}
+
 	int32 GetAccoladeXpValue()
 	{
 		static auto fn = FindObject<UFunction>("/Script/FortniteGame.FortAccoladeItemDefinition.GetAccoladeXpValue");

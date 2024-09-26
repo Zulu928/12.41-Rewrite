@@ -179,98 +179,43 @@ void AFortGameModeAthena::HandleSpawnRateForActorClass(UClass* ActorClass, float
 
 void SetZoneToIndexHook(AFortGameModeAthena* GameModeAthena, int OverridePhaseMaybeIDFK)
 {
-	if (Globals::bStartedBus == true)
+	if (bStartedBus == true)
 	{
-		auto GameState = Cast<AFortGameStateAthena>(GameModeAthena->GetGameState());
-		auto SafeZoneIndicator = GameModeAthena->GetSafeZoneIndicator();
+		static auto ZoneDurationsOffset = Fortnite_Version >= 13.40 && Fortnite_Version < 18 ? 0x258
+			: std::floor(Fortnite_Version) >= 18 ? 0x248
+			: 0x1F8; // S13-S14
 
-		if (!GameState || !SafeZoneIndicator)
+		static int32 GameMode_SafeZonePhaseOffset = 0;
+		static int32 GameState_SafeZonePhaseOffset = 0;
+		static bool bFilledDurations = false;
+
+		static auto SafeZonePhaseOffset = GameModeAthena->GetOffset("SafeZonePhase");
+
+		auto GameState = Cast<AFortGameStateAthena>(GameModeAthena->GetGameState());
+
+		if (!GameState)
 		{
-			LOG_ERROR(LogZone, "Invalid GameState or SafeZoneIndicator!");
+			LOG_ERROR(LogZone, "Invalid GameState!");
 			return SetZoneToIndexOriginal(GameModeAthena, OverridePhaseMaybeIDFK);
 		}
 
-		int32 ZoneDurationsOffset = (Fortnite_Version >= 13.40 ? 0x258 : 0x1F8);
-		int32 GameMode_SafeZonePhaseOffset = GameModeAthena->GetOffset("SafeZonePhase");
-		int32 GameState_SafeZonePhaseOffset = GameState->GetOffset("SafeZonePhase");
-		int32 SafeZonePhaseOffset = GameModeAthena->GetOffset("SafeZonePhase");
-
-		static bool bFilledDurations = false;
-		static bool bZoneReversing = false;
-		static bool bEnableReverseZone = false;
-		static int32 NewLateGameSafeZonePhase = 1;
-		static const int32 EndReverseZonePhase = 5;
-		static const int32 StartReverseZonePhase = 7;
-
-		int NumPlayers = GameState->GetPlayersLeft();
-
-		if (NumPlayers >= 5)
+		auto SafeZoneIndicator = GameModeAthena->GetSafeZoneIndicator();
+		if (!SafeZoneIndicator)
 		{
-			if (Fortnite_Version < 12.41)
-			{
-				if (Globals::bLateGame.load())
-				{
-					GameModeAthena->Get<int>(GameMode_SafeZonePhaseOffset) = NewLateGameSafeZonePhase;
-					GameState->Get<int>(GameState_SafeZonePhaseOffset) = NewLateGameSafeZonePhase;
-					SetZoneToIndexOriginal(GameModeAthena, OverridePhaseMaybeIDFK);
+			LOG_ERROR(LogZone, "Invalid SafeZoneIndicator!");
+			return SetZoneToIndexOriginal(GameModeAthena, OverridePhaseMaybeIDFK);
+		}
 
-					if (NewLateGameSafeZonePhase == EndReverseZonePhase) bZoneReversing = false;
-					if (NewLateGameSafeZonePhase == 1 || NewLateGameSafeZonePhase == 2) SafeZoneIndicator->SkipShrinkSafeZone();
-					if (NewLateGameSafeZonePhase >= StartReverseZonePhase) bZoneReversing = false;
+		GameMode_SafeZonePhaseOffset = GameModeAthena->GetOffset("SafeZonePhase");
+		GameState_SafeZonePhaseOffset = GameState->GetOffset("SafeZonePhase");
+		SafeZonePhaseOffset = GameModeAthena->GetOffset("SafeZonePhase");
 
-					NewLateGameSafeZonePhase = (bZoneReversing && bEnableReverseZone) ? NewLateGameSafeZonePhase - 1 : NewLateGameSafeZonePhase + 1;
+		static int NewLateGameSafeZonePhase = 1;
 
-					return;
-				}
-				return SetZoneToIndexOriginal(GameModeAthena, OverridePhaseMaybeIDFK);
-			}
+		LOG_INFO(LogDev, "NewLateGameSafeZonePhase: {}", NewLateGameSafeZonePhase);
 
-			auto SafeZoneFinishShrinkTimeOffset = SafeZoneIndicator->GetOffset("SafeZoneFinishShrinkTime");
-			auto SafeZoneStartShrinkTimeOffset = SafeZoneIndicator->GetOffset("SafeZoneStartShrinkTime");
-			auto RadiusOffset = SafeZoneIndicator->GetOffset("Radius");
-			auto MapInfoOffset = GameState->GetOffset("MapInfo");
-			auto MapInfo = GameState->Get<AActor*>(MapInfoOffset);
-
-			if (!MapInfo)
-			{
-				LOG_ERROR(LogZone, "Invalid MapInfo!");
-				return SetZoneToIndexOriginal(GameModeAthena, OverridePhaseMaybeIDFK);
-			}
-
-			auto SafeZoneDefinitionOffset = MapInfo->GetOffset("SafeZoneDefinition");
-			auto SafeZoneDefinition = MapInfo->GetPtr<__int64>(SafeZoneDefinitionOffset);
-			auto ZoneHoldDurationsOffset = ZoneDurationsOffset - 0x10;
-
-			auto& ZoneDurations = *(TArray<float>*)(__int64(SafeZoneDefinition) + ZoneDurationsOffset);
-			auto& ZoneHoldDurations = *(TArray<float>*)(__int64(SafeZoneDefinition) + ZoneHoldDurationsOffset);
-
-			if (!bFilledDurations)
-			{
-				bFilledDurations = true;
-				UCurveTable* FortGameData = GameState->GetCurrentPlaylist()
-					? GameState->GetCurrentPlaylist()->Get<TSoftObjectPtr<UCurveTable>>(GameState->GetCurrentPlaylist()->GetOffset("GameData")).Get()
-					: FindObject<UCurveTable>(L"/Game/Balance/AthenaGameData.AthenaGameData");
-
-				if (!FortGameData)
-				{
-					LOG_ERROR(LogZone, "Unable to get FortGameData.");
-					return SetZoneToIndexOriginal(GameModeAthena, OverridePhaseMaybeIDFK);
-				}
-
-				auto ShrinkTimeFName = UKismetStringLibrary::Conv_StringToName(L"Default.SafeZone.ShrinkTime");
-				auto HoldTimeFName = UKismetStringLibrary::Conv_StringToName(L"Default.SafeZone.WaitTime");
-
-				for (int i = 0; i < ZoneDurations.Num(); i++)
-					ZoneDurations.at(i) = FortGameData->GetValueOfKey(FortGameData->GetKey(ShrinkTimeFName, i));
-
-				for (int i = 0; i < ZoneHoldDurations.Num(); i++)
-					ZoneHoldDurations.at(i) = FortGameData->GetValueOfKey(FortGameData->GetKey(HoldTimeFName, i));
-			}
-
-			LOG_INFO(LogZone, "SafeZonePhase: {}", GameModeAthena->Get<int>(SafeZonePhaseOffset));
-			LOG_INFO(LogZone, "OverridePhaseMaybeIDFK: {}", OverridePhaseMaybeIDFK);
-			LOG_INFO(LogZone, "TimeSeconds: {}", UGameplayStatics::GetTimeSeconds(GetWorld()));
-
+		if (Fortnite_Version < 12.41)
+		{
 			if (Globals::bLateGame.load())
 			{
 				GameModeAthena->Get<int>(GameMode_SafeZonePhaseOffset) = NewLateGameSafeZonePhase;
@@ -278,314 +223,250 @@ void SetZoneToIndexHook(AFortGameModeAthena* GameModeAthena, int OverridePhaseMa
 				SetZoneToIndexOriginal(GameModeAthena, OverridePhaseMaybeIDFK);
 
 				if (NewLateGameSafeZonePhase == EndReverseZonePhase) bZoneReversing = false;
+				if (NewLateGameSafeZonePhase == 1 || NewLateGameSafeZonePhase == 2) SafeZoneIndicator->SkipShrinkSafeZone();
 				if (NewLateGameSafeZonePhase >= StartReverseZonePhase) bZoneReversing = false;
 
 				NewLateGameSafeZonePhase = (bZoneReversing && bEnableReverseZone) ? NewLateGameSafeZonePhase - 1 : NewLateGameSafeZonePhase + 1;
+
+				return;
 			}
-			else
+			return SetZoneToIndexOriginal(GameModeAthena, OverridePhaseMaybeIDFK);
+		}
+
+		if (!SafeZoneIndicator)
+		{
+			LOG_WARN(LogZone, "Invalid SafeZoneIndicator!");
+			return SetZoneToIndexOriginal(GameModeAthena, OverridePhaseMaybeIDFK);
+		}
+
+		static auto SafeZoneFinishShrinkTimeOffset = SafeZoneIndicator->GetOffset("SafeZoneFinishShrinkTime");
+		static auto SafeZoneStartShrinkTimeOffset = SafeZoneIndicator->GetOffset("SafeZoneStartShrinkTime");
+		static auto RadiusOffset = SafeZoneIndicator->GetOffset("Radius");
+
+		static auto MapInfoOffset = GameState->GetOffset("MapInfo");
+		auto MapInfo = GameState->Get<AActor*>(MapInfoOffset);
+
+		if (!MapInfo)
+		{
+			LOG_WARN(LogZone, "Invalid MapInfo!");
+			return SetZoneToIndexOriginal(GameModeAthena, OverridePhaseMaybeIDFK);
+		}
+
+		static auto SafeZoneDefinitionOffset = MapInfo->GetOffset("SafeZoneDefinition");
+		auto SafeZoneDefinition = MapInfo->GetPtr<__int64>(SafeZoneDefinitionOffset);
+
+		LOG_INFO(LogDev, "SafeZoneDefinitionOffset: 0x{:x}", SafeZoneDefinitionOffset);
+
+		static auto ZoneHoldDurationsOffset = ZoneDurationsOffset - 0x10;
+
+		auto& ZoneDurations = *(TArray<float>*)(__int64(SafeZoneDefinition) + ZoneDurationsOffset);
+		auto& ZoneHoldDurations = *(TArray<float>*)(__int64(SafeZoneDefinition) + ZoneHoldDurationsOffset);
+
+		if (!bFilledDurations)
+		{
+			bFilledDurations = true;
+
+			auto CurrentPlaylist = GameState->GetCurrentPlaylist();
+			UCurveTable* FortGameData = nullptr;
+
+			static auto GameDataOffset = CurrentPlaylist->GetOffset("GameData");
+			FortGameData = CurrentPlaylist ? CurrentPlaylist->Get<TSoftObjectPtr<UCurveTable>>(GameDataOffset).Get() : nullptr;
+
+			if (!FortGameData)
+				FortGameData = FindObject<UCurveTable>(L"/Game/Balance/AthenaGameData.AthenaGameData");
+
+			if (!FortGameData)
 			{
-				SetZoneToIndexOriginal(GameModeAthena, OverridePhaseMaybeIDFK);
+				LOG_ERROR(LogZone, "Unable to get FortGameData.");
+				return SetZoneToIndexOriginal(GameModeAthena, OverridePhaseMaybeIDFK);
 			}
 
-			LOG_INFO(LogZone, "SafeZonePhase After: {}", GameModeAthena->Get<int>(SafeZonePhaseOffset));
+			auto ShrinkTimeFName = UKismetStringLibrary::Conv_StringToName(L"Default.SafeZone.ShrinkTime");
+			auto HoldTimeFName = UKismetStringLibrary::Conv_StringToName(L"Default.SafeZone.WaitTime");
 
-			float ZoneHoldDuration = (GameModeAthena->Get<int>(SafeZonePhaseOffset) >= 0 && GameModeAthena->Get<int>(SafeZonePhaseOffset) < ZoneHoldDurations.Num())
-				? ZoneHoldDurations.at(GameModeAthena->Get<int>(SafeZonePhaseOffset)) : 0.0f;
+			for (int i = 0; i < ZoneDurations.Num(); i++)
+				ZoneDurations.at(i) = FortGameData->GetValueOfKey(FortGameData->GetKey(ShrinkTimeFName, i));
 
-			SafeZoneIndicator->Get<float>(SafeZoneStartShrinkTimeOffset) = GameState->GetServerWorldTimeSeconds() + ZoneHoldDuration;
+			for (int i = 0; i < ZoneHoldDurations.Num(); i++)
+				ZoneHoldDurations.at(i) = FortGameData->GetValueOfKey(FortGameData->GetKey(HoldTimeFName, i));
+		}
 
-			float ZoneDuration = (GameModeAthena->Get<int>(SafeZonePhaseOffset) >= 0 && GameModeAthena->Get<int>(SafeZonePhaseOffset) < ZoneDurations.Num())
-				? ZoneDurations.at(GameModeAthena->Get<int>(SafeZonePhaseOffset)) : 0.0f;
+		LOG_INFO(LogZone, "SafeZonePhase: {}", GameModeAthena->Get<int>(SafeZonePhaseOffset));
+		LOG_INFO(LogZone, "OverridePhaseMaybeIDFK: {}", OverridePhaseMaybeIDFK);
+		LOG_INFO(LogZone, "TimeSeconds: {}", UGameplayStatics::GetTimeSeconds(GetWorld()));
 
-			LOG_INFO(LogZone, "ZoneDuration: {}", ZoneDuration);
-			LOG_INFO(LogZone, "Current Radius: {}", SafeZoneIndicator->Get<float>(RadiusOffset));
+		if (Globals::bLateGame.load())
+		{
+			GameModeAthena->Get<int>(GameMode_SafeZonePhaseOffset) = NewLateGameSafeZonePhase;
+			GameState->Get<int>(GameState_SafeZonePhaseOffset) = NewLateGameSafeZonePhase;
+			SetZoneToIndexOriginal(GameModeAthena, OverridePhaseMaybeIDFK);
 
-			SafeZoneIndicator->Get<float>(SafeZoneFinishShrinkTimeOffset) = SafeZoneIndicator->Get<float>(SafeZoneStartShrinkTimeOffset) + ZoneDuration;
+			if (NewLateGameSafeZonePhase == EndReverseZonePhase) bZoneReversing = false;
+			if (NewLateGameSafeZonePhase >= StartReverseZonePhase) bZoneReversing = false;
+
+			NewLateGameSafeZonePhase = (bZoneReversing && bEnableReverseZone) ? NewLateGameSafeZonePhase - 1 : NewLateGameSafeZonePhase + 1;
+		}
+		else
+		{
+			SetZoneToIndexOriginal(GameModeAthena, OverridePhaseMaybeIDFK);
+		}
+
+		LOG_INFO(LogZone, "SafeZonePhase After: {}", GameModeAthena->Get<int>(SafeZonePhaseOffset));
+
+		float ZoneHoldDuration = (GameModeAthena->Get<int>(SafeZonePhaseOffset) >= 0 && GameModeAthena->Get<int>(SafeZonePhaseOffset) < ZoneHoldDurations.Num())
+			? ZoneHoldDurations.at(GameModeAthena->Get<int>(SafeZonePhaseOffset)) : 0.0f;
+
+		SafeZoneIndicator->Get<float>(SafeZoneStartShrinkTimeOffset) = GameState->GetServerWorldTimeSeconds() + ZoneHoldDuration;
+
+		float ZoneDuration = (GameModeAthena->Get<int>(SafeZonePhaseOffset) >= 0 && GameModeAthena->Get<int>(SafeZonePhaseOffset) < ZoneDurations.Num())
+			? ZoneDurations.at(GameModeAthena->Get<int>(SafeZonePhaseOffset)) : 0.0f;
+
+		LOG_INFO(LogZone, "ZoneDuration: {}", ZoneDuration);
+		LOG_INFO(LogZone, "Current Radius: {}", SafeZoneIndicator->Get<float>(RadiusOffset));
+
+		SafeZoneIndicator->Get<float>(SafeZoneFinishShrinkTimeOffset) = SafeZoneIndicator->Get<float>(SafeZoneStartShrinkTimeOffset) + ZoneDuration;
+
+		int PlayersLeft = GameState->GetPlayersLeft();
+
+		if (PlayersLeft >= 5)
+		{
+			if (GameModeAthena->Get<int>(SafeZonePhaseOffset) == 2)
+			{
+				{
+					LOG_INFO(LogDebug, "SafeZoneIndicatorNull1");
+					LOG_WARN(LogZone, "SafeZoneIndicator is null during skip.");
+					LOG_INFO(LogDebug, "SafeZoneIndicatorNull11");
+				}
+
+				static auto RadiusOffset = SafeZoneIndicator->GetOffset("Radius");
+				LOG_INFO(LogDebug, "RadiusOffset1");
+				const float InitialSafeZoneRadius = 20502.766f;
+				LOG_INFO(LogDebug, "InitialSafeZoneRadius1");
+
+				SafeZoneIndicator->Get<float>(RadiusOffset) = InitialSafeZoneRadius;
+				LOG_INFO(LogDebug, "Get1");
+
+				LOG_INFO(LogZone, "Initial Safe Zone Radius set to: {}", InitialSafeZoneRadius);
+
+
+				LOG_INFO(LogDebug, "return SetZoneToIndexOriginal");
+				SetZoneToIndexOriginal(GameModeAthena, OverridePhaseMaybeIDFK);
+
+				return SetZoneToIndexOriginal(GameModeAthena, OverridePhaseMaybeIDFK);
+			}
 
 			if (GameModeAthena->Get<int>(SafeZonePhaseOffset) == 3)
 			{
-				const float FixedInitialZoneSize = 5000.0f;
-				SafeZoneIndicator->Get<float>(RadiusOffset) = FixedInitialZoneSize;
-				LOG_INFO(LogZone, "Initial Storm Zone Size set to: {}", FixedInitialZoneSize);
-			}
-
-			if (GameModeAthena->Get<int>(SafeZonePhaseOffset) == 2 || GameModeAthena->Get<int>(SafeZonePhaseOffset) == 3)
-			{
-				if (SafeZoneIndicator)
-				{
-					SafeZoneIndicator->SkipShrinkSafeZone();
-				}
-				else
 				{
 					LOG_WARN(LogZone, "SafeZoneIndicator is null during skip.");
 				}
 
-				UKismetSystemLibrary::ExecuteConsoleCommand(GetWorld(), L"skipsafezone", nullptr);
+				static auto RadiusOffset = SafeZoneIndicator->GetOffset("Radius");
+				const float InitialSafeZoneRadius = 10380.38f;
+				SafeZoneIndicator->Get<float>(RadiusOffset) = InitialSafeZoneRadius;
+
+				LOG_INFO(LogZone, "Initial Safe Zone Radius set to: {}", InitialSafeZoneRadius);
+
+				SetZoneToIndexOriginal(GameModeAthena, OverridePhaseMaybeIDFK);
+
+				return SetZoneToIndexOriginal(GameModeAthena, OverridePhaseMaybeIDFK);
+			}
+
+			if (GameModeAthena->Get<int>(SafeZonePhaseOffset) == 4)
+			{
+				{
+					LOG_WARN(LogZone, "SafeZoneIndicator is null during skip.");
+				}
+
+				static auto RadiusOffset = SafeZoneIndicator->GetOffset("Radius");
+				const float InitialSafeZoneRadius = 5000.38f;
+				SafeZoneIndicator->Get<float>(RadiusOffset) = InitialSafeZoneRadius;
+
+				LOG_INFO(LogZone, "Initial Safe Zone Radius set to: {}", InitialSafeZoneRadius);
+
+				SetZoneToIndexOriginal(GameModeAthena, OverridePhaseMaybeIDFK);
+
+				return SetZoneToIndexOriginal(GameModeAthena, OverridePhaseMaybeIDFK);
+			}
+
+			if (GameModeAthena->Get<int>(SafeZonePhaseOffset) == 5)
+			{
+				{
+					LOG_WARN(LogZone, "SafeZoneIndicator is null during skip.");
+				}
+
+				static auto RadiusOffset = SafeZoneIndicator->GetOffset("Radius");
+				const float InitialSafeZoneRadius = 350.38f;
+				SafeZoneIndicator->Get<float>(RadiusOffset) = InitialSafeZoneRadius;
+
+				LOG_INFO(LogZone, "Initial Safe Zone Radius set to: {}", InitialSafeZoneRadius);
+
+				SetZoneToIndexOriginal(GameModeAthena, OverridePhaseMaybeIDFK);
+
+				return SetZoneToIndexOriginal(GameModeAthena, OverridePhaseMaybeIDFK);
 			}
 		}
 
-		if (NumPlayers < 5)
+
+		if (PlayersLeft < 5)
 		{
-			static int NewLateGameSafeZonePhase = 2;
-
-			LOG_INFO(LogDev, "NewLateGameSafeZonePhase: {}", NewLateGameSafeZonePhase);
-
-			if (Fortnite_Version < 12.41)
+			if (GameModeAthena->Get<int>(SafeZonePhaseOffset) == 2)
 			{
-				if (Globals::bLateGame.load())
-				{
-					GameModeAthena->Get<int>(GameMode_SafeZonePhaseOffset) = NewLateGameSafeZonePhase;
-					GameState->Get<int>(GameState_SafeZonePhaseOffset) = NewLateGameSafeZonePhase;
-					SetZoneToIndexOriginal(GameModeAthena, OverridePhaseMaybeIDFK);
-
-					if (NewLateGameSafeZonePhase == EndReverseZonePhase) bZoneReversing = false;
-					if (NewLateGameSafeZonePhase == 1 || NewLateGameSafeZonePhase == 2) SafeZoneIndicator->SkipShrinkSafeZone();
-					if (NewLateGameSafeZonePhase >= StartReverseZonePhase) bZoneReversing = false;
-
-					NewLateGameSafeZonePhase = (bZoneReversing && bEnableReverseZone) ? NewLateGameSafeZonePhase - 1 : NewLateGameSafeZonePhase + 1;
-
-					return;
-				}
-				return SetZoneToIndexOriginal(GameModeAthena, OverridePhaseMaybeIDFK);
+				SafeZoneIndicator->SkipShrinkSafeZone();
 			}
-
-			auto SafeZoneFinishShrinkTimeOffset = SafeZoneIndicator->GetOffset("SafeZoneFinishShrinkTime");
-			auto SafeZoneStartShrinkTimeOffset = SafeZoneIndicator->GetOffset("SafeZoneStartShrinkTime");
-			auto RadiusOffset = SafeZoneIndicator->GetOffset("Radius");
-			auto MapInfoOffset = GameState->GetOffset("MapInfo");
-			auto MapInfo = GameState->Get<AActor*>(MapInfoOffset);
-
-			if (!MapInfo)
-			{
-				LOG_ERROR(LogZone, "Invalid MapInfo!");
-				return SetZoneToIndexOriginal(GameModeAthena, OverridePhaseMaybeIDFK);
-			}
-
-			auto SafeZoneDefinitionOffset = MapInfo->GetOffset("SafeZoneDefinition");
-			auto SafeZoneDefinition = MapInfo->GetPtr<__int64>(SafeZoneDefinitionOffset);
-			auto ZoneHoldDurationsOffset = ZoneDurationsOffset - 0x10;
-
-			auto& ZoneDurations = *(TArray<float>*)(__int64(SafeZoneDefinition) + ZoneDurationsOffset);
-			auto& ZoneHoldDurations = *(TArray<float>*)(__int64(SafeZoneDefinition) + ZoneHoldDurationsOffset);
-
-			if (!bFilledDurations)
-			{
-				bFilledDurations = true;
-				UCurveTable* FortGameData = GameState->GetCurrentPlaylist()
-					? GameState->GetCurrentPlaylist()->Get<TSoftObjectPtr<UCurveTable>>(GameState->GetCurrentPlaylist()->GetOffset("GameData")).Get()
-					: FindObject<UCurveTable>(L"/Game/Balance/AthenaGameData.AthenaGameData");
-
-				if (!FortGameData)
-				{
-					LOG_ERROR(LogZone, "Unable to get FortGameData.");
-					return SetZoneToIndexOriginal(GameModeAthena, OverridePhaseMaybeIDFK);
-				}
-
-				auto ShrinkTimeFName = UKismetStringLibrary::Conv_StringToName(L"Default.SafeZone.ShrinkTime");
-				auto HoldTimeFName = UKismetStringLibrary::Conv_StringToName(L"Default.SafeZone.WaitTime");
-
-				for (int i = 0; i < ZoneDurations.Num(); i++)
-					ZoneDurations.at(i) = FortGameData->GetValueOfKey(FortGameData->GetKey(ShrinkTimeFName, i));
-
-				for (int i = 0; i < ZoneHoldDurations.Num(); i++)
-					ZoneHoldDurations.at(i) = FortGameData->GetValueOfKey(FortGameData->GetKey(HoldTimeFName, i));
-			}
-
-			LOG_INFO(LogZone, "SafeZonePhase: {}", GameModeAthena->Get<int>(SafeZonePhaseOffset));
-			LOG_INFO(LogZone, "OverridePhaseMaybeIDFK: {}", OverridePhaseMaybeIDFK);
-			LOG_INFO(LogZone, "TimeSeconds: {}", UGameplayStatics::GetTimeSeconds(GetWorld()));
-
-			if (Globals::bLateGame.load())
-			{
-				GameModeAthena->Get<int>(GameMode_SafeZonePhaseOffset) = NewLateGameSafeZonePhase;
-				GameState->Get<int>(GameState_SafeZonePhaseOffset) = NewLateGameSafeZonePhase;
-				SetZoneToIndexOriginal(GameModeAthena, OverridePhaseMaybeIDFK);
-
-				if (NewLateGameSafeZonePhase == EndReverseZonePhase) bZoneReversing = false;
-				if (NewLateGameSafeZonePhase >= StartReverseZonePhase) bZoneReversing = false;
-
-				NewLateGameSafeZonePhase = (bZoneReversing && bEnableReverseZone) ? NewLateGameSafeZonePhase - 1 : NewLateGameSafeZonePhase + 1;
-			}
-			else
-			{
-				SetZoneToIndexOriginal(GameModeAthena, OverridePhaseMaybeIDFK);
-			}
-
-			LOG_INFO(LogZone, "SafeZonePhase After: {}", GameModeAthena->Get<int>(SafeZonePhaseOffset));
-
-			float ZoneHoldDuration = (GameModeAthena->Get<int>(SafeZonePhaseOffset) >= 0 && GameModeAthena->Get<int>(SafeZonePhaseOffset) < ZoneHoldDurations.Num())
-				? ZoneHoldDurations.at(GameModeAthena->Get<int>(SafeZonePhaseOffset)) : 0.0f;
-
-			SafeZoneIndicator->Get<float>(SafeZoneStartShrinkTimeOffset) = GameState->GetServerWorldTimeSeconds() + ZoneHoldDuration;
-
-			float ZoneDuration = (GameModeAthena->Get<int>(SafeZonePhaseOffset) >= 0 && GameModeAthena->Get<int>(SafeZonePhaseOffset) < ZoneDurations.Num())
-				? ZoneDurations.at(GameModeAthena->Get<int>(SafeZonePhaseOffset)) : 0.0f;
-
-			LOG_INFO(LogZone, "ZoneDuration: {}", ZoneDuration);
-			LOG_INFO(LogZone, "Current Radius: {}", SafeZoneIndicator->Get<float>(RadiusOffset));
-
-			SafeZoneIndicator->Get<float>(SafeZoneFinishShrinkTimeOffset) = SafeZoneIndicator->Get<float>(SafeZoneStartShrinkTimeOffset) + ZoneDuration;
 
 			if (GameModeAthena->Get<int>(SafeZonePhaseOffset) == 3)
 			{
-				const float FixedInitialZoneSize = 100.0f;
-				SafeZoneIndicator->Get<float>(RadiusOffset) = FixedInitialZoneSize;
-				LOG_INFO(LogZone, "Initial Storm Zone Size set to: {}", FixedInitialZoneSize);
-			}
-
-			if (GameModeAthena->Get<int>(SafeZonePhaseOffset) == 3 || GameModeAthena->Get<int>(SafeZonePhaseOffset) == 4)
-			{
-				if (SafeZoneIndicator)
-				{
-					SafeZoneIndicator->SkipShrinkSafeZone();
-				}
-				else
 				{
 					LOG_WARN(LogZone, "SafeZoneIndicator is null during skip.");
 				}
 
-				UKismetSystemLibrary::ExecuteConsoleCommand(GetWorld(), L"skipsafezone", nullptr);
+				static auto RadiusOffset = SafeZoneIndicator->GetOffset("Radius");
+				const float InitialSafeZoneRadius = 10380.38f;
+				SafeZoneIndicator->Get<float>(RadiusOffset) = InitialSafeZoneRadius;
+
+				LOG_INFO(LogZone, "Initial Safe Zone Radius set to: {}", InitialSafeZoneRadius);
+
+				SetZoneToIndexOriginal(GameModeAthena, OverridePhaseMaybeIDFK);
+
+				return SetZoneToIndexOriginal(GameModeAthena, OverridePhaseMaybeIDFK);
 			}
-			return;
 
-			int32 ZoneDurationsOffset = (Fortnite_Version >= 12.41 ? 0x258 : 0x1F8);
-			int32 GameMode_SafeZonePhaseOffset = GameModeAthena->GetOffset("SafeZonePhase");
-			int32 GameState_SafeZonePhaseOffset = GameState->GetOffset("SafeZonePhase");
-			int32 SafeZonePhaseOffset = GameModeAthena->GetOffset("SafeZonePhase");
-
-			GET_PLAYLIST(GameState);
-
-			if (CurrentPlaylist)
+			if (GameModeAthena->Get<int>(SafeZonePhaseOffset) == 4)
 			{
-				bool bRespawning = CurrentPlaylist->GetRespawnType() == EAthenaRespawnType::InfiniteRespawn || CurrentPlaylist->GetRespawnType() == EAthenaRespawnType::InfiniteRespawnExceptStorm;
-
-				if (bRespawning == true)
 				{
-					static int NewLateGameSafeZonePhase = 2;
-
-					LOG_INFO(LogDev, "NewLateGameSafeZonePhase: {}", NewLateGameSafeZonePhase);
-
-					if (Fortnite_Version < 12.41)
-					{
-						if (Globals::bLateGame.load())
-						{
-							GameModeAthena->Get<int>(GameMode_SafeZonePhaseOffset) = NewLateGameSafeZonePhase;
-							GameState->Get<int>(GameState_SafeZonePhaseOffset) = NewLateGameSafeZonePhase;
-							SetZoneToIndexOriginal(GameModeAthena, OverridePhaseMaybeIDFK);
-
-							if (NewLateGameSafeZonePhase == EndReverseZonePhase) bZoneReversing = false;
-							if (NewLateGameSafeZonePhase == 1 || NewLateGameSafeZonePhase == 2) SafeZoneIndicator->SkipShrinkSafeZone();
-							if (NewLateGameSafeZonePhase >= StartReverseZonePhase) bZoneReversing = false;
-
-							NewLateGameSafeZonePhase = (bZoneReversing && bEnableReverseZone) ? NewLateGameSafeZonePhase - 1 : NewLateGameSafeZonePhase + 1;
-
-							return;
-						}
-						return SetZoneToIndexOriginal(GameModeAthena, OverridePhaseMaybeIDFK);
-					}
-
-					auto SafeZoneFinishShrinkTimeOffset = SafeZoneIndicator->GetOffset("SafeZoneFinishShrinkTime");
-					auto SafeZoneStartShrinkTimeOffset = SafeZoneIndicator->GetOffset("SafeZoneStartShrinkTime");
-					auto RadiusOffset = SafeZoneIndicator->GetOffset("Radius");
-					auto MapInfoOffset = GameState->GetOffset("MapInfo");
-					auto MapInfo = GameState->Get<AActor*>(MapInfoOffset);
-
-					if (!MapInfo)
-					{
-						LOG_ERROR(LogZone, "Invalid MapInfo!");
-						return SetZoneToIndexOriginal(GameModeAthena, OverridePhaseMaybeIDFK);
-					}
-
-					auto SafeZoneDefinitionOffset = MapInfo->GetOffset("SafeZoneDefinition");
-					auto SafeZoneDefinition = MapInfo->GetPtr<__int64>(SafeZoneDefinitionOffset);
-					auto ZoneHoldDurationsOffset = ZoneDurationsOffset - 0x10;
-
-					auto& ZoneDurations = *(TArray<float>*)(__int64(SafeZoneDefinition) + ZoneDurationsOffset);
-					auto& ZoneHoldDurations = *(TArray<float>*)(__int64(SafeZoneDefinition) + ZoneHoldDurationsOffset);
-
-					if (!bFilledDurations)
-					{
-						bFilledDurations = true;
-						UCurveTable* FortGameData = GameState->GetCurrentPlaylist()
-							? GameState->GetCurrentPlaylist()->Get<TSoftObjectPtr<UCurveTable>>(GameState->GetCurrentPlaylist()->GetOffset("GameData")).Get()
-							: FindObject<UCurveTable>(L"/Game/Balance/AthenaGameData.AthenaGameData");
-
-						if (!FortGameData)
-						{
-							LOG_ERROR(LogZone, "Unable to get FortGameData.");
-							return SetZoneToIndexOriginal(GameModeAthena, OverridePhaseMaybeIDFK);
-						}
-
-						auto ShrinkTimeFName = UKismetStringLibrary::Conv_StringToName(L"Default.SafeZone.ShrinkTime");
-						auto HoldTimeFName = UKismetStringLibrary::Conv_StringToName(L"Default.SafeZone.WaitTime");
-
-						for (int i = 0; i < ZoneDurations.Num(); i++)
-							ZoneDurations.at(i) = FortGameData->GetValueOfKey(FortGameData->GetKey(ShrinkTimeFName, i));
-
-						for (int i = 15000; i < ZoneHoldDurations.Num(); i++)
-							ZoneHoldDurations.at(i) = FortGameData->GetValueOfKey(FortGameData->GetKey(HoldTimeFName, i));
-					}
-
-					LOG_INFO(LogZone, "SafeZonePhase: {}", GameModeAthena->Get<int>(SafeZonePhaseOffset));
-					LOG_INFO(LogZone, "OverridePhaseMaybeIDFK: {}", OverridePhaseMaybeIDFK);
-					LOG_INFO(LogZone, "TimeSeconds: {}", UGameplayStatics::GetTimeSeconds(GetWorld()));
-
-					if (Globals::bLateGame.load())
-					{
-						GameModeAthena->Get<int>(GameMode_SafeZonePhaseOffset) = NewLateGameSafeZonePhase;
-						GameState->Get<int>(GameState_SafeZonePhaseOffset) = NewLateGameSafeZonePhase;
-						SetZoneToIndexOriginal(GameModeAthena, OverridePhaseMaybeIDFK);
-
-						if (NewLateGameSafeZonePhase == EndReverseZonePhase) bZoneReversing = false;
-						if (NewLateGameSafeZonePhase >= StartReverseZonePhase) bZoneReversing = false;
-
-						NewLateGameSafeZonePhase = (bZoneReversing && bEnableReverseZone) ? NewLateGameSafeZonePhase - 1 : NewLateGameSafeZonePhase + 1;
-					}
-					else
-					{
-						SetZoneToIndexOriginal(GameModeAthena, OverridePhaseMaybeIDFK);
-					}
-
-					LOG_INFO(LogZone, "SafeZonePhase After: {}", GameModeAthena->Get<int>(SafeZonePhaseOffset));
-
-					float ZoneHoldDuration = (GameModeAthena->Get<int>(SafeZonePhaseOffset) >= 0 && GameModeAthena->Get<int>(SafeZonePhaseOffset) < ZoneHoldDurations.Num())
-						? ZoneHoldDurations.at(GameModeAthena->Get<int>(SafeZonePhaseOffset)) : 0.0f;
-
-					SafeZoneIndicator->Get<float>(SafeZoneStartShrinkTimeOffset) = GameState->GetServerWorldTimeSeconds() + ZoneHoldDuration;
-
-					float ZoneDuration = (GameModeAthena->Get<int>(SafeZonePhaseOffset) >= 0 && GameModeAthena->Get<int>(SafeZonePhaseOffset) < ZoneDurations.Num())
-						? ZoneDurations.at(GameModeAthena->Get<int>(SafeZonePhaseOffset)) : 15000.0f;
-
-					LOG_INFO(LogZone, "ZoneDuration: {}", ZoneDuration);
-					LOG_INFO(LogZone, "Current Radius: {}", SafeZoneIndicator->Get<float>(RadiusOffset));
-
-					SafeZoneIndicator->Get<float>(SafeZoneFinishShrinkTimeOffset) = SafeZoneIndicator->Get<float>(SafeZoneStartShrinkTimeOffset) + ZoneDuration;
-
-					if (GameModeAthena->Get<int>(SafeZonePhaseOffset) == 3)
-					{
-						const float FixedInitialZoneSize = 300.0f;
-						SafeZoneIndicator->Get<float>(RadiusOffset) = FixedInitialZoneSize;
-						LOG_INFO(LogZone, "Initial Storm Zone Size set to: {}", FixedInitialZoneSize);
-					}
-
-					if (GameModeAthena->Get<int>(SafeZonePhaseOffset) == 3 || GameModeAthena->Get<int>(SafeZonePhaseOffset) == 4)
-					{
-						if (SafeZoneIndicator)
-						{
-							SafeZoneIndicator->SkipShrinkSafeZone();
-						}
-						else
-						{
-							LOG_WARN(LogZone, "SafeZoneIndicator is null during skip.");
-						}
-
-						UKismetSystemLibrary::ExecuteConsoleCommand(GetWorld(), L"skipsafezone", nullptr);
-					}
+					LOG_WARN(LogZone, "SafeZoneIndicator is null during skip.");
 				}
+
+				static auto RadiusOffset = SafeZoneIndicator->GetOffset("Radius");
+				const float InitialSafeZoneRadius = 5000.38f;
+				SafeZoneIndicator->Get<float>(RadiusOffset) = InitialSafeZoneRadius;
+
+				LOG_INFO(LogZone, "Initial Safe Zone Radius set to: {}", InitialSafeZoneRadius);
+
+				SetZoneToIndexOriginal(GameModeAthena, OverridePhaseMaybeIDFK);
+
+				return SetZoneToIndexOriginal(GameModeAthena, OverridePhaseMaybeIDFK);
+			}
+
+			if (GameModeAthena->Get<int>(SafeZonePhaseOffset) == 5)
+			{
+				{
+					LOG_WARN(LogZone, "SafeZoneIndicator is null during skip.");
+				}
+
+				static auto RadiusOffset = SafeZoneIndicator->GetOffset("Radius");
+				const float InitialSafeZoneRadius = 350.38f;
+				SafeZoneIndicator->Get<float>(RadiusOffset) = InitialSafeZoneRadius;
+
+				LOG_INFO(LogZone, "Initial Safe Zone Radius set to: {}", InitialSafeZoneRadius);
+
+				SetZoneToIndexOriginal(GameModeAthena, OverridePhaseMaybeIDFK);
+
+				return SetZoneToIndexOriginal(GameModeAthena, OverridePhaseMaybeIDFK);
 			}
 		}
 	}
-	return;
 }
 
 void AFortGameModeAthena::StartAircraftPhase()

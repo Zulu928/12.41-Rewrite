@@ -90,14 +90,17 @@ void AFortPlayerControllerAthena::GiveAccolade(AFortPlayerControllerAthena* PC, 
 	Info.Accolade = UKismetSystemLibrary::GetPrimaryAssetIdFromObject(Accolade);
 	float XpValue = Accolade->GetAccoladeXpValue();
 
+		XpValue = UDataTableFunctionLibrary::EvaluateCurveTableRow(Accolade->GetXpRewardAmount().GetCurve().CurveTable, Accolade->GetXpRewardAmount().GetCurve().RowName, Accolade->GetXpRewardAmount().GetValue());
+	if (XpValue == 0)
+	{
+		//XpValue = UDataTableFunctionLibrary::EvaluateCurveTableRow(Accolade->GetXpRewardAmount().GetCurve().CurveTable, UKismetStringLibrary::Conv_StringToName(TEXT("Default_Medal")), Accolade->GetXpRewardAmount().GetValue());
+	}
+
 	if (XpValue == 0)
 	{
 		std::random_device rd;
-
 		std::mt19937 gen(rd());
-
 		std::uniform_int_distribution<> dist(1, 150);
-
 		int randomNumber = dist(gen);
 		XpValue = Accolade->GetAccoladeXpValue() + randomNumber;
 	}
