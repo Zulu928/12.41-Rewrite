@@ -1294,5 +1294,6 @@
     <None Include="ExpressionParserTypes.inl">
       <Filter>Engine\Source\Runtime\Core\Public\Misc</Filter>
     </None>
+    <None Include="cpp.hint" />
   </ItemGroup>
 </Project>

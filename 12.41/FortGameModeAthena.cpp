@@ -37,6 +37,7 @@
 #include <random>
 #include "FortAthenaMutator_DadBro.h"
 #include "die.h"
+#include "Vector2D.h"
 
 static UFortPlaylistAthena* GetPlaylistToUse()
 {
@@ -242,6 +243,8 @@ void SetZoneToIndexHook(AFortGameModeAthena* GameModeAthena, int OverridePhaseMa
 		static auto SafeZoneFinishShrinkTimeOffset = SafeZoneIndicator->GetOffset("SafeZoneFinishShrinkTime");
 		static auto SafeZoneStartShrinkTimeOffset = SafeZoneIndicator->GetOffset("SafeZoneStartShrinkTime");
 		static auto RadiusOffset = SafeZoneIndicator->GetOffset("Radius");
+		static auto LocationOffset = SafeZoneIndicator->GetOffset("Location");
+
 
 		static auto MapInfoOffset = GameState->GetOffset("MapInfo");
 		auto MapInfo = GameState->Get<AActor*>(MapInfoOffset);
@@ -321,13 +324,19 @@ void SetZoneToIndexHook(AFortGameModeAthena* GameModeAthena, int OverridePhaseMa
 		float ZoneDuration = (GameModeAthena->Get<int>(SafeZonePhaseOffset) >= 0 && GameModeAthena->Get<int>(SafeZonePhaseOffset) < ZoneDurations.Num())
 			? ZoneDurations.at(GameModeAthena->Get<int>(SafeZonePhaseOffset)) : 0.0f;
 
+		SafeZoneIndicator->Get<float>(SafeZoneFinishShrinkTimeOffset) = SafeZoneIndicator->Get<float>(SafeZoneStartShrinkTimeOffset) + ZoneDuration;
+		auto GameMode = Cast<AFortGameModeAthena>(GetWorld()->GetGameMode());
+		static auto SafeZoneLocationsOffset = GameMode->GetOffset("SafeZoneLocations");
+	//	const TArray<FVector>& SafeZoneLocations = GameMode->Get<TArray<FVector>>(SafeZoneLocationsOffset);
+		//const FVector ZoneCenterLocation = SafeZoneLocations.at(3);
+	//	FVector LocationToStartAircraft = ZoneCenterLocation;
+
 		LOG_INFO(LogZone, "ZoneDuration: {}", ZoneDuration);
 		LOG_INFO(LogZone, "Current Radius: {}", SafeZoneIndicator->Get<float>(RadiusOffset));
-
-		SafeZoneIndicator->Get<float>(SafeZoneFinishShrinkTimeOffset) = SafeZoneIndicator->Get<float>(SafeZoneStartShrinkTimeOffset) + ZoneDuration;
-
+		LOG_INFO(LogZone, "Current SafeZoneLocation: {}", SafeZoneIndicator->Get<float>(SafeZoneLocationsOffset));
+		
 		int PlayersLeft = GameState->GetPlayersLeft();
-
+		
 		if (PlayersLeft >= 5)
 		{
 			if (GameModeAthena->Get<int>(SafeZonePhaseOffset) == 2)
@@ -357,19 +366,18 @@ void SetZoneToIndexHook(AFortGameModeAthena* GameModeAthena, int OverridePhaseMa
 
 			if (GameModeAthena->Get<int>(SafeZonePhaseOffset) == 3)
 			{
-				{
-					LOG_WARN(LogZone, "SafeZoneIndicator is null during skip.");
-				}
-
+				static auto SafeZoneLocationsOffset = GameMode->GetOffset("SafeZoneLocations");
 				static auto RadiusOffset = SafeZoneIndicator->GetOffset("Radius");
 				const float InitialSafeZoneRadius = 10380.38f;
 				SafeZoneIndicator->Get<float>(RadiusOffset) = InitialSafeZoneRadius;
+				LOG_INFO(LogZone, "Current SafeZoneLocation: {}", SafeZoneIndicator->Get<float>(SafeZoneLocationsOffset));
 
 				LOG_INFO(LogZone, "Initial Safe Zone Radius set to: {}", InitialSafeZoneRadius);
 
 				SetZoneToIndexOriginal(GameModeAthena, OverridePhaseMaybeIDFK);
 
 				return SetZoneToIndexOriginal(GameModeAthena, OverridePhaseMaybeIDFK);
+
 			}
 
 			if (GameModeAthena->Get<int>(SafeZonePhaseOffset) == 4)
@@ -377,7 +385,8 @@ void SetZoneToIndexHook(AFortGameModeAthena* GameModeAthena, int OverridePhaseMa
 				{
 					LOG_WARN(LogZone, "SafeZoneIndicator is null during skip.");
 				}
-
+				static auto SafeZoneLocationsOffset = GameMode->GetOffset("SafeZoneLocations");
+				LOG_INFO(LogZone, "Current SafeZoneLocation: {}", SafeZoneIndicator->Get<float>(SafeZoneLocationsOffset));
 				static auto RadiusOffset = SafeZoneIndicator->GetOffset("Radius");
 				const float InitialSafeZoneRadius = 5000.38f;
 				SafeZoneIndicator->Get<float>(RadiusOffset) = InitialSafeZoneRadius;
@@ -394,42 +403,46 @@ void SetZoneToIndexHook(AFortGameModeAthena* GameModeAthena, int OverridePhaseMa
 				{
 					LOG_WARN(LogZone, "SafeZoneIndicator is null during skip.");
 				}
-
+				static auto SafeZoneLocationsOffset = GameMode->GetOffset("SafeZoneLocations");
+				LOG_INFO(LogZone, "Current SafeZoneLocation: {}", SafeZoneIndicator->Get<float>(SafeZoneLocationsOffset));
 				static auto RadiusOffset = SafeZoneIndicator->GetOffset("Radius");
-				const float InitialSafeZoneRadius = 350.38f;
+				const float InitialSafeZoneRadius = 2500.922f;
 				SafeZoneIndicator->Get<float>(RadiusOffset) = InitialSafeZoneRadius;
 
 				LOG_INFO(LogZone, "Initial Safe Zone Radius set to: {}", InitialSafeZoneRadius);
-
-				SetZoneToIndexOriginal(GameModeAthena, OverridePhaseMaybeIDFK);
-
-				return SetZoneToIndexOriginal(GameModeAthena, OverridePhaseMaybeIDFK);
 			}
 		}
 
-
 		if (PlayersLeft < 5)
 		{
+			if (GameModeAthena->Get<int>(SafeZonePhaseOffset) == 1)
+			{
+				SafeZoneIndicator->SkipShrinkSafeZone();
+				static auto SafeZoneLocationsOffset = GameMode->GetOffset("SafeZoneLocations");
+				LOG_INFO(LogZone, "Current SafeZoneLocation: {}", SafeZoneIndicator->Get<float>(SafeZoneLocationsOffset));
+			}
+
 			if (GameModeAthena->Get<int>(SafeZonePhaseOffset) == 2)
 			{
 				SafeZoneIndicator->SkipShrinkSafeZone();
+				static auto SafeZoneLocationsOffset = GameMode->GetOffset("SafeZoneLocations");
+				LOG_INFO(LogZone, "Current SafeZoneLocation: {}", SafeZoneIndicator->Get<float>(SafeZoneLocationsOffset));
 			}
 
 			if (GameModeAthena->Get<int>(SafeZonePhaseOffset) == 3)
 			{
-				{
-					LOG_WARN(LogZone, "SafeZoneIndicator is null during skip.");
-				}
-
+				static auto SafeZoneLocationsOffset = GameMode->GetOffset("SafeZoneLocations");
 				static auto RadiusOffset = SafeZoneIndicator->GetOffset("Radius");
 				const float InitialSafeZoneRadius = 10380.38f;
 				SafeZoneIndicator->Get<float>(RadiusOffset) = InitialSafeZoneRadius;
+				LOG_INFO(LogZone, "Current SafeZoneLocation: {}", SafeZoneIndicator->Get<float>(SafeZoneLocationsOffset));
 
 				LOG_INFO(LogZone, "Initial Safe Zone Radius set to: {}", InitialSafeZoneRadius);
 
 				SetZoneToIndexOriginal(GameModeAthena, OverridePhaseMaybeIDFK);
 
 				return SetZoneToIndexOriginal(GameModeAthena, OverridePhaseMaybeIDFK);
+
 			}
 
 			if (GameModeAthena->Get<int>(SafeZonePhaseOffset) == 4)
@@ -437,7 +450,8 @@ void SetZoneToIndexHook(AFortGameModeAthena* GameModeAthena, int OverridePhaseMa
 				{
 					LOG_WARN(LogZone, "SafeZoneIndicator is null during skip.");
 				}
-
+				static auto SafeZoneLocationsOffset = GameMode->GetOffset("SafeZoneLocations");
+				LOG_INFO(LogZone, "Current SafeZoneLocation: {}", SafeZoneIndicator->Get<float>(SafeZoneLocationsOffset));
 				static auto RadiusOffset = SafeZoneIndicator->GetOffset("Radius");
 				const float InitialSafeZoneRadius = 5000.38f;
 				SafeZoneIndicator->Get<float>(RadiusOffset) = InitialSafeZoneRadius;
@@ -454,16 +468,13 @@ void SetZoneToIndexHook(AFortGameModeAthena* GameModeAthena, int OverridePhaseMa
 				{
 					LOG_WARN(LogZone, "SafeZoneIndicator is null during skip.");
 				}
-
+				static auto SafeZoneLocationsOffset = GameMode->GetOffset("SafeZoneLocations");
+				LOG_INFO(LogZone, "Current SafeZoneLocation: {}", SafeZoneIndicator->Get<float>(SafeZoneLocationsOffset));
 				static auto RadiusOffset = SafeZoneIndicator->GetOffset("Radius");
-				const float InitialSafeZoneRadius = 350.38f;
+				const float InitialSafeZoneRadius = 2500.922f;
 				SafeZoneIndicator->Get<float>(RadiusOffset) = InitialSafeZoneRadius;
 
 				LOG_INFO(LogZone, "Initial Safe Zone Radius set to: {}", InitialSafeZoneRadius);
-
-				SetZoneToIndexOriginal(GameModeAthena, OverridePhaseMaybeIDFK);
-
-				return SetZoneToIndexOriginal(GameModeAthena, OverridePhaseMaybeIDFK);
 			}
 		}
 	}

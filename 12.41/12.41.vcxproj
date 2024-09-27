@@ -509,6 +509,7 @@
     <ClInclude Include="World.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="cpp.hint" />
     <None Include="DelegateSignatureImpl.inl" />
     <None Include="ExpressionParserTypes.inl" />
     <None Include="UnrealEngine.cpp" />
