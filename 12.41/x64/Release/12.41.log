@@ -100,20 +100,20 @@ C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41-Rewrite\12.41-Rewrite\12.41\g
 C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41-Rewrite\12.41-Rewrite\12.41\gui.h(1865,36): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
 C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41-Rewrite\12.41-Rewrite\12.41\FortAthenaMutator_DadBro.h(77,96): warning C4267: 'argument': conversion from 'size_t' to 'uint32', possible loss of data
 C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41-Rewrite\12.41-Rewrite\12.41\FortGameModeAthena.cpp(172,24): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41-Rewrite\12.41-Rewrite\12.41\FortGameModeAthena.cpp(1154,18): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41-Rewrite\12.41-Rewrite\12.41\FortGameModeAthena.cpp(1741,108): warning C4244: 'argument': conversion from 'float' to '_Ty', possible loss of data
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41-Rewrite\12.41-Rewrite\12.41\FortGameModeAthena.cpp(1149,18): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41-Rewrite\12.41-Rewrite\12.41\FortGameModeAthena.cpp(1736,108): warning C4244: 'argument': conversion from 'float' to '_Ty', possible loss of data
           with
           [
               _Ty=int
           ]
-C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41-Rewrite\12.41-Rewrite\12.41\FortGameModeAthena.cpp(1741,72): warning C4244: 'argument': conversion from 'float' to '_Ty', possible loss of data
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41-Rewrite\12.41-Rewrite\12.41\FortGameModeAthena.cpp(1736,72): warning C4244: 'argument': conversion from 'float' to '_Ty', possible loss of data
           with
           [
               _Ty=int
           ]
-C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41-Rewrite\12.41-Rewrite\12.41\FortGameModeAthena.cpp(1743,32): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41-Rewrite\12.41-Rewrite\12.41\FortGameModeAthena.cpp(1760,20): warning C4244: 'initializing': conversion from 'int64' to 'uint8', possible loss of data
-C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41-Rewrite\12.41-Rewrite\12.41\FortGameModeAthena.cpp(2008,26): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41-Rewrite\12.41-Rewrite\12.41\FortGameModeAthena.cpp(1738,32): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41-Rewrite\12.41-Rewrite\12.41\FortGameModeAthena.cpp(1755,20): warning C4244: 'initializing': conversion from 'int64' to 'uint8', possible loss of data
+C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41-Rewrite\12.41-Rewrite\12.41\FortGameModeAthena.cpp(2003,26): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.39.33519\include\utility(250,16): warning C4244: 'initializing': conversion from '_Ty' to '_Ty1', possible loss of data
           with
           [
@@ -163,8 +163,8 @@ C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.39.3351
           ]
 LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library
   Generating code
-  5 of 14018 functions (<0.1%) were compiled, the rest were copied from previous compilation.
+  6 of 14018 functions (<0.1%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    72 functions had inline decision re-evaluated but remain unchanged
+    68 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   12.41.vcxproj -> C:\Users\joshu\Downloads\Compressed\12.41 GS\12.41-Rewrite\12.41-Rewrite\x64\Release\12.41 GS.dll

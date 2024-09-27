@@ -337,7 +337,7 @@ void SetZoneToIndexHook(AFortGameModeAthena* GameModeAthena, int OverridePhaseMa
 		
 		int PlayersLeft = GameState->GetPlayersLeft();
 		
-		if (PlayersLeft >= 5)
+		if (PlayersLeft < 5)
 		{
 			if (GameModeAthena->Get<int>(SafeZonePhaseOffset) == 2)
 			{
@@ -382,6 +382,7 @@ void SetZoneToIndexHook(AFortGameModeAthena* GameModeAthena, int OverridePhaseMa
 
 			if (GameModeAthena->Get<int>(SafeZonePhaseOffset) == 4)
 			{
+				SafeZoneIndicator->SkipShrinkSafeZone();
 				{
 					LOG_WARN(LogZone, "SafeZoneIndicator is null during skip.");
 				}
@@ -392,14 +393,11 @@ void SetZoneToIndexHook(AFortGameModeAthena* GameModeAthena, int OverridePhaseMa
 				SafeZoneIndicator->Get<float>(RadiusOffset) = InitialSafeZoneRadius;
 
 				LOG_INFO(LogZone, "Initial Safe Zone Radius set to: {}", InitialSafeZoneRadius);
-
-				SetZoneToIndexOriginal(GameModeAthena, OverridePhaseMaybeIDFK);
-
-				return SetZoneToIndexOriginal(GameModeAthena, OverridePhaseMaybeIDFK);
 			}
 
 			if (GameModeAthena->Get<int>(SafeZonePhaseOffset) == 5)
 			{
+				SafeZoneIndicator->SkipShrinkSafeZone();
 				{
 					LOG_WARN(LogZone, "SafeZoneIndicator is null during skip.");
 				}
@@ -413,7 +411,7 @@ void SetZoneToIndexHook(AFortGameModeAthena* GameModeAthena, int OverridePhaseMa
 			}
 		}
 
-		if (PlayersLeft < 5)
+		if (PlayersLeft >= 5)
 		{
 			if (GameModeAthena->Get<int>(SafeZonePhaseOffset) == 1)
 			{
@@ -447,6 +445,7 @@ void SetZoneToIndexHook(AFortGameModeAthena* GameModeAthena, int OverridePhaseMa
 
 			if (GameModeAthena->Get<int>(SafeZonePhaseOffset) == 4)
 			{
+				SafeZoneIndicator->SkipShrinkSafeZone();
 				{
 					LOG_WARN(LogZone, "SafeZoneIndicator is null during skip.");
 				}
@@ -457,14 +456,11 @@ void SetZoneToIndexHook(AFortGameModeAthena* GameModeAthena, int OverridePhaseMa
 				SafeZoneIndicator->Get<float>(RadiusOffset) = InitialSafeZoneRadius;
 
 				LOG_INFO(LogZone, "Initial Safe Zone Radius set to: {}", InitialSafeZoneRadius);
-
-				SetZoneToIndexOriginal(GameModeAthena, OverridePhaseMaybeIDFK);
-
-				return SetZoneToIndexOriginal(GameModeAthena, OverridePhaseMaybeIDFK);
 			}
 
 			if (GameModeAthena->Get<int>(SafeZonePhaseOffset) == 5)
 			{
+				SafeZoneIndicator->SkipShrinkSafeZone();
 				{
 					LOG_WARN(LogZone, "SafeZoneIndicator is null during skip.");
 				}
